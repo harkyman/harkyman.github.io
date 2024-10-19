@@ -50,7 +50,7 @@
     <title>Zurich - Feldeggstrasse Departures</title>
 	<script>
 		function makeList(x) {
-				for (y=0;y<5;y++) {
+				for (y=0;y<7;y++) {
 				  var display = [];
 				  var times = [];
 				  var delays = [];
@@ -74,7 +74,7 @@
 			}
 				
 		document.addEventListener('DOMContentLoaded', function() {
-			fetch('https://transport.opendata.ch/v1/stationboard?id=8576197&limit=5&station=Zurich-Feldeggstrasse', {
+			fetch('https://transport.opendata.ch/v1/stationboard?id=8576197&limit=7&station=Zurich-Feldeggstrasse', {
 			   headers: {
 				  'Accept': 'application/json'
 			   }
@@ -94,6 +94,8 @@
 			<tr><td id="di2"></td><td id="de2"></td><td id="ti2" style="text-align: right"></td></tr>
 			<tr><td id="di3"></td><td id="de3"></td><td id="ti3" style="text-align: right"></td></tr>
 			<tr><td id="di4"></td><td id="de4"></td><td id="ti4" style="text-align: right"></td></tr>
+			<tr><td id="di5"></td><td id="de5"></td><td id="ti5" style="text-align: right"></td></tr>
+			<tr><td id="di6"></td><td id="de6"></td><td id="ti6" style="text-align: right"></td></tr>
 		</table></div>
 		<div style="text-align: right; display: none;"><span id="btnRefresh">🚊</span></div>
 	</div>

@@ -57,7 +57,7 @@
 				  //display.push(x["stationboard"][y]["category"]); 
 				  display.push(x["stationboard"][y]["number"]); 
 				  display.push(" ");
-				  display.push(x["stationboard"][y]["to"].split(",")[0];
+				  display.push(x["stationboard"][y]["to"].split(",")[0]);
 				  times.push(Math.round((new Date(x["stationboard"][y]["stop"]["departure"]) - new Date())/60000));
 				  times.push("'");
 				  if (x["stationboard"][y]["stop"]["delay"] > 0) {

@@ -12,10 +12,11 @@
     <!-- Bootstrap CSS -->
 	<style>
 		.bodycontainer {
-		  position: absolute;
-		  left: 10%;
-		  top: 50%;
-		  width: 80%;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
 		}
 
 		#btnRefresh {
@@ -44,8 +45,14 @@
 			padding-bottom: 0.5%;
 		}
 
+		#subcontainer {
+			position: relative;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: 75%;
+		}
 
-		
 		body {
 			background-color: #5d635d;
 		}
@@ -81,24 +88,16 @@
 			  height: 100%;
 
 			  /* Center and scale the image nicely */
-			  background-position-y: 30%;
-background-position-x: 49%;
+			  background-position-y: 50%;
+background-position-x: 50%;
 			  background-repeat: no-repeat;
-			  background-size: 243%;
+			  background-size: 227%;
 		}
 
 		@media only screen and (min-width: 800px) {
 		  td {
-			font-size: 135%;
+			font-size: 120%;
 		  }
-
-			.bodycontainer {
-				top: 28%;
-			}
-
-		  #stationoverlay {
-			background-position-y: 49%;
-			}
 		}
 	</style>
     <title>Zurich - Feldeggstrasse Departures</title>
@@ -156,7 +155,7 @@ background-position-x: 49%;
   <body>
 <div id="stationoverlay"></div>
 	<div class="bodycontainer">
-		<div><table id="board" style="width: 100%;">
+		<div id="subcontainer"><table id="board" style="width: 100%;">
 			<tr><td id="di0"></td><td id="de0"></td><td id="ti0" style="text-align: right"></td></tr>
 			<tr><td id="di1"></td><td id="de1"></td><td id="ti1" style="text-align: right"></td></tr>
 			<tr><td id="di2"></td><td id="de2"></td><td id="ti2" style="text-align: right"></td></tr>

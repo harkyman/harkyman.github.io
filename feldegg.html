@@ -41,10 +41,64 @@
 			"YELA" 0;
 			color: #e5ffc1;
 		  font-size: 6pt;
+			padding-bottom: 0.5%;
 		}
+
+
 		
 		body {
 			background-color: #5d635d;
+		}
+
+		#glassoverlay {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			top:0;
+			left:0;
+			  /* The image used */
+			  background-image: url("overlay.png");
+
+			  /* Full height */
+			  height: 100%;
+
+			  /* Center and scale the image nicely */
+			  background-position: center;
+			  background-repeat: no-repeat;
+			  background-size: cover;
+		}
+
+		#stationoverlay {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			top:0;
+			left:0;
+			  /* The image used */
+			  background-image: url("https://harkyman.github.io/stationimage.png");
+
+			  /* Full height */
+			  height: 100%;
+
+			  /* Center and scale the image nicely */
+			  background-position-y: -9%;
+background-position-x: 49%;
+			  background-repeat: no-repeat;
+			  background-size: 243%;
+		}
+
+		@media only screen and (min-width: 800px) {
+		  td {
+			font-size: 135%;
+		  }
+
+			.bodycontainer {
+				top: 28%;
+			}
+
+		  #stationoverlay {
+			background-position-y: 49%;
+			}
 		}
 	</style>
     <title>Zurich - Feldeggstrasse Departures</title>
@@ -54,15 +108,22 @@
 				  var display = [];
 				  var times = [];
 				  var delays = [];
+					var boardtime = Math.round((new Date(x["stationboard"][y]["stop"]["departure"]) - new Date())/60000);
+					var delay = x["stationboard"][y]["stop"]["delay"];
 				  //display.push(x["stationboard"][y]["category"]); 
 				  display.push(x["stationboard"][y]["number"]); 
 				  display.push(" ");
 				  display.push(x["stationboard"][y]["to"].split(",")[0]);
-				  times.push(Math.round((new Date(x["stationboard"][y]["stop"]["departure"]) - new Date())/60000));
-				  times.push("'");
-				  if (x["stationboard"][y]["stop"]["delay"] > 0) {
+					if ((boardtime + delay) == 0) {
+						times.push("🚊");
+						$("#ti" + y).css("color", "transparent").css("text-shadow","0 0 0 #e5ffc1");
+					} else {
+						times.push(boardtime);
+						times.push("'");
+					}
+				  if (delay) {
 					delays.push("(+"); 
-					delays.push(x["stationboard"][y]["stop"]["delay"]);
+					delays.push(delay);
 					delays.push(")");
 				  } else {
 					delays.push();
@@ -70,11 +131,17 @@
 				  $("#di" + y).html( display.join(""));
 				  $("#de" + y).html( delays.join(""));
 				  $("#ti" + y).html( times.join(""));
+
+					if ((boardtime + delay) < 0) {
+						$("#di" + y).css("color","rgba(229,255,193,0.5)");
+						$("#de" + y).css("color","rgba(229,255,193,0.5)");
+						$("#ti" + y).css("color","rgba(229,255,193,0.5)");
+					}
 				}
 			}
 				
 		document.addEventListener('DOMContentLoaded', function() {
-			fetch('https://transport.opendata.ch/v1/stationboard?id=8576197&limit=7&station=Zurich-Feldeggstrasse', {
+			fetch('https://transport.opendata.ch/v1/stationboard?id=8576197&limit=7', {
 			   headers: {
 				  'Accept': 'application/json'
 			   }
@@ -87,6 +154,7 @@
 	</script>
   </head>
   <body>
+<div id="stationoverlay"></div>
 	<div class="bodycontainer">
 		<div><table id="board" style="width: 100%;">
 			<tr><td id="di0"></td><td id="de0"></td><td id="ti0" style="text-align: right"></td></tr>

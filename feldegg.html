@@ -18,11 +18,25 @@
 			width: 100%;
 			height: 100%;
 		}
+		
+		#location {
+				position: fixed;
+				top: 0px;
+				right: 0px;
+				width: 60px;
+				height: 60px;
+				background-color: rgba(0,0,0,0.35);
+				display: none;
+		}
 
 		#btnRefresh {
 			color: transparent;
 			text-shadow: 0 0 0 #e5ffc1;
 			font-size: 15pt;
+		}
+
+		#station {
+			padding-bottom: 15pt;
 		}
 
 		#btnRefresh:hover {
@@ -52,6 +66,50 @@
 			transform: translate(-50%, -50%);
 			width: 75%;
 		}
+		
+		#chooser {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: 95%;
+			background-color: rgba(0, 0, 0, 0.9);
+			display: none;
+			height: 95%;
+			border-radius: 28pt;
+		}
+		
+		#chooser li {
+			font-size: 20pt;
+			color: white;
+			font-family: "Sixtyfour";
+			margin-bottom: 24pt;
+			list-style-type: none;
+		}
+		
+		#chooser a {
+			color: white;
+			text-decoration: none;
+		}
+		
+		#chooser ul {
+			top: 50%;
+			position: fixed;
+			transform: translate(-50%, -50%);
+			left: 50%;
+			width: 80%;
+		}
+		
+		.stationbutton {
+			background-color: #3c3c3c;
+			padding: 16pt;
+			border-radius: 28pt;
+			font-size: 15pt;
+			margin-right: 28pt;
+			color: white;
+			font-family: "Sixtyfour";
+			text-decoration: none;
+		}
 
 		body {
 			background-color: #5d635d;
@@ -59,7 +117,7 @@
 
 		#glassoverlay {
 			position: absolute;
-			width: 100%;
+			width: 100%;	
 			height: 100%;
 			top:0;
 			left:0;
@@ -102,52 +160,137 @@ background-position-x: 50%;
 	</style>
     <title>Zurich - Feldeggstrasse Departures</title>
 	<script>
-		function makeList(x) {
-				for (y=0;y<7;y++) {
-				  var display = [];
-				  var times = [];
-				  var delays = [];
-					var boardtime = Math.round((new Date(x["stationboard"][y]["stop"]["departure"]) - new Date())/60000);
-					var delay = x["stationboard"][y]["stop"]["delay"];
-				  //display.push(x["stationboard"][y]["category"]); 
-				  display.push(x["stationboard"][y]["number"]); 
-				  display.push(" ");
-				  display.push(x["stationboard"][y]["to"].split(",")[0]);
-					if ((boardtime + delay) == 0) {
-						times.push("🚊");
-						$("#ti" + y).css("color", "transparent").css("text-shadow","0 0 0 #e5ffc1");
-					} else {
-						times.push(boardtime);
-						times.push("'");
-					}
-				  if (delay) {
-					delays.push("(+"); 
-					delays.push(delay);
-					delays.push(")");
-				  } else {
-					delays.push();
-				  }
-				  $("#di" + y).html( display.join(""));
-				  $("#de" + y).html( delays.join(""));
-				  $("#ti" + y).html( times.join(""));
 
-					if ((boardtime + delay) < 0) {
-						$("#di" + y).css("color","rgba(229,255,193,0.5)");
-						$("#de" + y).css("color","rgba(229,255,193,0.5)");
-						$("#ti" + y).css("color","rgba(229,255,193,0.5)");
-					}
+
+		function toTitleCase(str) {
+		  return str.replace(
+			/\w\S*/g,
+			text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+		  );
+		}
+
+		function makeList(x) { 
+			$("#station").html("> " + toTitleCase(x["station"]["name"].replace(/.*,\W/,"")));
+			for (y=0;y<7;y++) {
+			  var display = [];
+			  var times = [];
+			  var delays = [];
+				var boardtime = Math.round((new Date(x["stationboard"][y]["stop"]["departure"]) - new Date())/60000);
+				var delay = x["stationboard"][y]["stop"]["delay"];
+			  display.push(x["stationboard"][y]["number"]); 
+			  display.push(" ");
+			  display.push(x["stationboard"][y]["to"].split(",")[0]);
+				if ((boardtime + delay) == 0) {
+					times.push("🚊");
+					$("#ti" + y).css("color", "transparent").css("text-shadow","0 0 0 #e5ffc1");
+				} else {
+					times.push(boardtime);
+					times.push("'");
+				}
+			  if (delay) {
+				delays.push("(+"); 
+				delays.push(delay);
+				delays.push(")");
+			  } else {
+				delays.push();
+			  }
+			  $("#di" + y).html( display.join(""));
+			  $("#de" + y).html( delays.join(""));
+			  $("#ti" + y).html( times.join(""));
+
+				if ((boardtime + delay) < 0) {
+					$("#di" + y).css("color","rgba(229,255,193,0.5)");
+					$("#de" + y).css("color","rgba(229,255,193,0.5)");
+					$("#ti" + y).css("color","rgba(229,255,193,0.5)");
 				}
 			}
-				
-		document.addEventListener('DOMContentLoaded', function() {
-			fetch('https://transport.opendata.ch/v1/stationboard?id=8576197&limit=7', {
+		}
+		
+		function showLocations(x) {
+		console.log(x); 	
+			var locCount = x['stations'].length;
+			$("#nearestaddress").html('> ' + x['stations'][0]['name']);
+			for (var i = 1; i <= Math.min(5, locCount); i++) {
+				var href = window.location.origin + window.location.pathname + "?stationid=" + x['stations'][i]['id'];
+				$("#station" + i).html("<a href='" + href + "'>" + x['stations'][i]['name'] + "</a>");
+			}
+			$("#chooser").css("display", "block");
+		}
+		
+		function fetchLocations() {
+			if ("geolocation" in navigator) {
+				navigator.geolocation.getCurrentPosition( setCurrentPositionAndFetch, positionError, { 
+					enableHighAccuracy: false, 
+					timeout: 15000, 
+					maximumAge: 0 
+				} );
+			} else { 
+				alert("You must allow this page to use geolocation in order to choose a stop.");
+			}
+		}
+		
+		function hideLocations() {
+			$("#chooser").css("display", "none");
+		}
+		
+		var long;
+		var lat;
+		
+		function setCurrentPosition(posOb) {
+			long = posOb.coords.longitude; //y
+			lat = posOb.coords.latitude; //x
+			$("#location").css("display", "block");
+		}
+		
+		function setCurrentPositionAndFetch(posOb) {
+			long = posOb.coords.longitude; //y
+			lat = posOb.coords.latitude; //x
+			fetch('https://transport.opendata.ch/v1/locations?y=' + long + '&x=' + lat, {
 			   headers: {
 				  'Accept': 'application/json'
 			   }
 			})
 			   .then(response => response.text())
-			   .then(text => makeList(JSON.parse(text)));
-		}, false);
+			   .then(text => showLocations(JSON.parse(text)));
+		}
+		
+		function positionError(err) {
+			alert(err.message);
+			console.log(err);
+		}
+		
+		function main() {
+			var queryString = window.location.search;
+			var urlParams = new URLSearchParams(queryString);
+			var urlId = urlParams.get("stationid");
+			
+			if ("geolocation" in navigator || urldId != null) {
+				navigator.geolocation.getCurrentPosition( setCurrentPosition, positionError, { 
+					enableHighAccuracy: false, 
+					timeout: 15000, 
+					maximumAge: 0 
+				} );
+				} else { 
+				alert("You must allow this page to use geolocation in order to choose a stop.");
+			}
+			
+			if (urlId == null) {
+				urlId = 8576197;
+			}
+			
+
+			document.addEventListener('DOMContentLoaded', function() {
+				fetch('https://transport.opendata.ch/v1/stationboard?id=' + urlId + '&limit=7', {
+				   headers: {
+					  'Accept': 'application/json'
+				   }
+				})
+				   .then(response => response.text())
+				   .then(text => makeList(JSON.parse(text)));
+			}, false);
+		}
+		
+		main();
 		
 
 	</script>
@@ -155,7 +298,9 @@ background-position-x: 50%;
   <body>
 <div id="stationoverlay"></div>
 	<div class="bodycontainer">
-		<div id="subcontainer"><table id="board" style="width: 100%;">
+		<div id="subcontainer">
+		<table id="board" style="width: 100%;">
+			<tr><td id="station" colspan=3></td></tr>
 			<tr><td id="di0"></td><td id="de0"></td><td id="ti0" style="text-align: right"></td></tr>
 			<tr><td id="di1"></td><td id="de1"></td><td id="ti1" style="text-align: right"></td></tr>
 			<tr><td id="di2"></td><td id="de2"></td><td id="ti2" style="text-align: right"></td></tr>
@@ -166,6 +311,17 @@ background-position-x: 50%;
 		</table></div>
 		<div style="text-align: right; display: none;"><span id="btnRefresh">🚊</span></div>
 	</div>
+	<div id="chooser">
+		<ul>
+			<li id="nearestaddress" class="currentaddress"></li>
+			<li id="station1" class="stationbutton"></li>
+			<li id="station2" class="stationbutton"></li>
+			<li id="station3" class="stationbutton"></li>
+			<li id="station4" class="stationbutton"></li>
+			<li id="station5" class="stationbutton"></li>
+		</ul>
+	</div>
+	<div id="location"></div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -173,9 +329,11 @@ background-position-x: 50%;
 		$(function()
 		{		
 			$("#btnRefresh").click(function() { location.reload(); } );
-			
+			$("#location").click(function() { fetchLocations(); } );
+			$("#chooser").click(function() { hideLocations(); })
 			
 		});
+		
 	</script>
   </body>
 </html>

@@ -80,7 +80,7 @@
 		}
 		
 		#chooser li {
-			font-size: 20pt;
+			font-size: 7pt;
 			color: white;
 			font-family: "Sixtyfour";
 			margin-bottom: 24pt;
@@ -97,14 +97,14 @@
 			position: fixed;
 			transform: translate(-50%, -50%);
 			left: 50%;
-			width: 80%;
+			width: 90%;
 		}
 		
 		.stationbutton {
 			background-color: #3c3c3c;
 			padding: 16pt;
 			border-radius: 28pt;
-			font-size: 15pt;
+			font-size: 7pt;
 			margin-right: 28pt;
 			color: white;
 			font-family: "Sixtyfour";
@@ -156,6 +156,18 @@ background-position-x: 50%;
 		  td {
 			font-size: 120%;
 		  }
+		  
+		  #chooser li {
+			margin-bottom: 10pt;
+		  }
+		  
+		  #chooser .stationbutton {
+			padding: 12pt;
+		  }
+		  
+		  #location {
+			height: 200px;
+		  }
 		}
 	</style>
     <title>Zurich - Feldeggstrasse Departures</title>
@@ -171,7 +183,7 @@ background-position-x: 50%;
 
 		function makeList(x) { 
 			$("#station").html("> " + toTitleCase(x["station"]["name"].replace(/.*,\W/,"")));
-			for (y=0;y<7;y++) {
+			for (y=0;y<6;y++) {
 			  var display = [];
 			  var times = [];
 			  var delays = [];

@@ -278,7 +278,7 @@ background-position-x: 50%;
 			
 			if ("geolocation" in navigator || urldId != null) {
 				navigator.geolocation.getCurrentPosition( setCurrentPosition, positionError, { 
-					enableHighAccuracy: false, 
+					enableHighAccuracy: true, 
 					timeout: 15000, 
 					maximumAge: 0 
 				} );

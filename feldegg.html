@@ -30,7 +30,7 @@
 				border-bottom-left-radius: 24pt;
 				background-image: url('station.png');
 				background-size: 75%;
-				background-repeat: no-repeat;
+				background-repeat: no-repeat; 	
 				background-position-x: center;
 				background-position-y: center;
 		}
@@ -157,6 +157,35 @@ background-position-x: 50%;
 			  background-repeat: no-repeat;
 			  background-size: 227%;
 		}
+		
+		
+		  
+		  #waiting {
+			background: black;
+			width: 90%;
+			position: fixed;
+			height: 90%;
+			top: 5%;
+			left: 5%;
+			border-radius: 24pt;
+			font-family: "Sixtyfour", sans-serif;
+			font-optical-sizing: auto;
+			font-weight: 400;
+			font-style: normal;
+			font-variation-settings:
+			"BLED" 0,
+			"SCAN" -25,
+			"XELA" 0,
+			"YELA" 0;
+			color: lightgrey;
+			font-size: 6pt;
+			text-align: center;
+			display: none;
+		  }
+		  
+		  #waitanim {
+			margin-top: 72%;
+		  }
 
 		@media only screen and (min-width: 800px) {
 		  td {
@@ -174,6 +203,10 @@ background-position-x: 50%;
 		  #location {
 			height: 200px;
 			background-position-y: 90%;
+		  }
+		  
+		  #waitanim {
+			margin-top: 5%;
 		  }
 		}
 	</style>
@@ -238,9 +271,10 @@ background-position-x: 50%;
 		
 		function fetchLocations() {
 			if ("geolocation" in navigator) {
+				$("#waiting").show();
 				navigator.geolocation.getCurrentPosition( setCurrentPositionAndFetch, positionError, { 
 					enableHighAccuracy: false, 
-					timeout: 15000, 
+					timeout: 30000, 
 					maximumAge: 0 
 				} );
 			} else { 
@@ -262,6 +296,7 @@ background-position-x: 50%;
 		}
 		
 		function setCurrentPositionAndFetch(posOb) {
+			$("#waiting").hide();
 			long = posOb.coords.longitude; //y
 			lat = posOb.coords.latitude; //x
 			fetch('https://transport.opendata.ch/v1/locations?y=' + long + '&x=' + lat, {
@@ -274,7 +309,8 @@ background-position-x: 50%;
 		}
 		
 		function positionError(err) {
-			alert("We didn't even get a location response yet! " + err.message);
+			$("#waiting").hide();
+			alert("We did not get a location from your phone within 30 seconds. Sorry.");
 			console.log(err);
 		}
 		
@@ -341,6 +377,7 @@ background-position-x: 50%;
 		</ul>
 	</div>
 	<div id="location"></div>
+	<div id="waiting"><div id="waitanim"></div><img src="trainanimation.gif" /><br />Checking your location...</div></div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha512-+NqPlbbtM1QqiK8ZAo4Yrj2c4lNQoGv8P79DPtKzj++l5jnN39rHA/xsqn8zE9l0uSoxaCdrOgFs6yjyfbBxSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

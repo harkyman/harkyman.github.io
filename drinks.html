@@ -1,0 +1,728 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name=viewport content="width=device-width, initial-scale=1.0, minimum-scale=0.5 maximum-scale=1.0">
+    <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular.min.js"></script>
+    <script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.5.2/angular-animate.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Great+Vibes" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
+    <style>
+      html {
+        height: 100vh;
+        overflow: hidden;
+        --box-shadow: 0 0 2em #AB9874 inset;
+        background-color: #F2E9BF;
+      }
+       
+      body {
+        color: #564D3A;
+        padding: 0;
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        font-family: sanserif;
+       }
+       
+      .breadcrumb-bar {
+        position: fixed; 
+        bottom: 1.5vh;
+        font-family: 'Great Vibes', cursive;
+        padding-left: 3vw;
+      }
+      
+      .breadcrumb {
+        text-transform: capitalize;
+        font-size: 3.5vh;
+      }
+      
+      .subtype {
+        background-image: url(images/subtypes.jpg);
+      }
+      
+      .type {
+        background-image: url(images/types.jpg);
+      }
+      
+      .booze, .type, .subtype {
+        text-transform: capitalize;
+        background-color: rgb(242, 233, 191);
+        width: 55vw;
+        background-size: contain;
+        height: 10vh;
+        text-align: center;
+        line-height: 9vh;
+        font-family: 'Great Vibes', cursive;
+        margin-bottom: 0.25em;
+        font-size: 4vh;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+      
+      .bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 90vh; 
+        flex-direction: column;
+        position: absolute;
+        width: 100vw;
+        overflow: scroll;
+        margin-top: 5vh;
+      }
+      
+      .joiner {
+        margin-left: 1vw;
+        opacity: 0.5;
+      }
+      
+      .count {
+        opacity: 0.6;
+        font-size: 2vh;
+        vertical-align: super;
+        margin-left: 1vw;
+      }
+      
+      .ai.ng-enter,
+      .ai.ng-leave {
+        -webkit-transition: opacity ease-in-out 0.5s;
+        -moz-transition: opacity ease-in-out 0.5s;
+        -ms-transition: opacity ease-in-out 0.5s;
+        -o-transition: opacity ease-in-out 0.5s;
+        transition: opacity ease-in-out 0.5s;
+      }
+      .ai.ng-enter,
+      .ai.ng-leave.ng-leave-active {
+        opacity: 0;
+      }
+      .ai.ng-leave,
+      .ai.ng-enter.ng-enter-active {
+        opacity: 1;
+      }
+      
+      .drink-list-ingredients {
+        width: 80vw;
+        margin-bottom: 17vmin;
+      }
+      
+      .drink-list {
+        width: 80vw;
+      }
+      
+      .drink-style {
+        font-family: "Great Vibes", cursive;
+        font-size: 8vh;
+        opacity: 0.1;
+      }
+      
+      .drink-name {
+        margin-top: -7vh;
+        font-weight: bold;
+        font-family: "Oswald", sans-serif;
+        font-size: 4vmin;
+        margin-left: 5.5vmin;
+        opacity: 0.8;
+      }
+      
+      .drink-ingredients {
+        margin-left: 10vmin;
+        font-family: "Oswald", sans-serif;
+        font-weight: lighter;
+        opacity: 0.7;
+      }
+      
+      .title {
+        position: fixed;
+        right: 1em;
+        top: 1em;
+        font-family: "Great Vibes", cursive;
+        font-size: 3.5vh;
+        opacity: 0.4;
+        z-index: 255;
+        pointer-events: none;
+      }
+      
+      .topfader {
+        background: linear-gradient(to bottom, rgba(242,233,191,1) 0%,rgba(242,233,191,0) 100%);
+        position: fixed;
+        width: 80vw;
+        left: 10vw;
+        top: 5vh;
+        height: 5vh;
+        pointer-events: none;
+      }
+      
+      .bottomfader {
+        background: linear-gradient(to top, rgba(242,233,191,1) 0%,rgba(242,233,191,0) 100%); 
+        position: fixed;
+        width: 80vw;
+        left: 10vw;
+        top: 90vh;
+        height: 5vh;
+        pointer-events: none;
+      }
+      
+      .ingredient-count {
+        opacity: 0.5;
+      }
+      
+      .ingredient-chooser {
+        font-family: "Great Vibes", cursive;
+        opacity: 0.6;
+        font-size: 3vh;
+        min-width: 50vw;
+        text-align: center;
+      }
+      
+      .ingredient {
+        font-family: "oswald", sans-serif;
+        min-width: 50vw;
+      }
+      
+      .first-true {
+        margin-top: 40vh; 
+      }
+      
+      .last-true {
+        margin-bottom: 20vh;
+      }
+    </style>
+  </head>
+   
+  <body ng-app = "app">
+    <div ng-controller="PickYourPoison" ng-popstate="onPopState($state);">
+      <div class="title">Pick Your Poison</div>
+      <div class='bar ai' ng-if="!choices.booze">
+        <div ng-repeat="booze in drink_tree" ng-click="showTypes($index);" class="booze" style="background-image: url(images/border_{{ booze.name }}.jpg);">{{ booze.name }}<span class="count">{{ booze.count }}</span></div>
+      </div>
+      <div class='bar ai' ng-if="choices.booze && !choices.type && !choices.ingredients">
+        <div ng-repeat="type in drink_tree[indices.booze].types" ng-click="showSubtypes($index);" class="type">{{ type.name }}<span class="count">{{ type.count }}</span></div>
+        <div class="ingredient-chooser" ng-click="showIngredients();">(by ingredients)</div>
+      </div>
+      <div class='bar ai' ng-if="choices.booze && !choices.type && choices.ingredients && !choices.drink_by_ingredients">
+        <div ng-repeat="ingredient in drink_tree[indices.booze].ingredients" ng-click="showDrinksByIngredient(drink_tree[indices.booze].ingredients, $index);" class="ingredient last-{{ $last }} first-{{ $first }}" style="margin-bottom: 1em;">{{ ingredient.name }} <span class="ingredient-count">{{ ingredient.drinks.length; }}</span></div>
+        <div class="ingredient-chooser last-true" ng-click="hideIngredients();">(by categories)</div>
+      </div>
+      <div class='bar ai' ng-if="choices.type && !choices.subtype && !choices.ingredients">
+        <div ng-repeat="subtype in drink_tree[indices.booze].types[indices.type].subtypes" ng-click="showDrinks($index);" class="subtype">{{ subtype.name }}<span class="count">{{ subtype.count }}</span></div>
+        <div class="ingredient-chooser" ng-click="showIngredients();">(by ingredients)</div>
+      </div>
+      <div class='bar ai' ng-if="choices.type && !choices.subtype && choices.ingredients && !choices.drink_by_ingredients">
+        <div ng-repeat="ingredient in drink_tree[indices.booze].types[indices.type].ingredients" ng-click="showDrinksByIngredient(drink_tree[indices.booze].types[indices.type].ingredients, $index);" class="ingredient last-{{ $last }} first-{{ $first }}" style="margin-bottom: 1em;">{{ ingredient.name }} <span class="ingredient-count">{{ ingredient.drinks.length; }}</span></div>
+        <div class="ingredient-chooser last-true" ng-click="hideIngredients();">(by categories)</div>
+      </div>
+      <div class='bar ai' ng-if="choices.subtype">
+        <div ng-repeat="drink in drink_tree[indices.booze].types[indices.type].subtypes[indices.subtype].drinks" class="drink-list">
+          <div class="first-true" ng-if="$first"></div>
+          <div class="drink-style">{{ drink.style }}</div>
+          <div class="drink-name">{{ drink.name }}</div>
+          <div class="drink-ingredients"><div ng-repeat="item in drinkIngredients(drink.name);" class="ingredient">{{ item }}</div></div>
+          <div class="last-true" ng-if="$last"></div>
+        </div>
+      </div>
+      <div class='bar ai' ng-if="choices.drink_by_ingredients">
+        <div ng-repeat="drink in ingredient_drinks" class="drink-list-ingredients">
+          <div class="first-true" ng-if="$first"></div>
+          <div class="drink-name">{{ drink }}</div>
+          <div class="drink-ingredients"><div ng-repeat="item in drinkIngredients(drink);" class="ingredient">{{ item }}</div></div>
+          <div class="last-true" ng-if="$last"></div>
+        </div>
+      </div>
+      <div class="bottomfader"></div>
+      <div class="topfader"></div>
+      <div class="breadcrumb-bar">
+        <span ng-repeat="crumb in breadcrumbs" class="breadcrumb">
+          <span ng-click="crumbs[crumb.type]($index)">{{ crumb.name }}</span><span ng-if="!$last" class="joiner">&#10021;</span>
+        </span>
+      </div>
+    </div>
+    <div ng-hide="1==1;">Credits:
+      <a href="https://www.freepik.com/free-photos-vectors/frame">Frame vector created by Alvaro_cabrera - Freepik.com</a>
+    </div>
+    <script>
+      angular.module("app", ['ngAnimate'])
+
+        .controller("PickYourPoison", function($scope) {
+
+        $scope.choices = {
+          "booze": false,
+          "type": false,
+          "subtype": false,
+          "drink_by_ingredients": false
+        };
+
+        $scope.indices = {
+          "booze": 0,
+          "type": 0,
+          "subtype": 0
+        };
+
+        $scope.crumbs = {
+          "home": function(index) {
+            if ($scope.breadcrumbs.length > 1) {
+              $scope.choices.booze = false;
+              $scope.choices.type = false;
+              $scope.choices.subtype = false;
+              $scope.choices.ingredients = false;
+              $scope.choices.drink_by_ingredients = false;
+              $scope.breadcrumbs = $scope.breadcrumbs.slice(0,1);
+            }
+          },
+          "booze": function(index) {
+            $scope.choices.type = false;
+            $scope.choices.subtype = false;
+            $scope.choices.ingredients = false;
+            $scope.choices.drink_by_ingredients = false;
+            $scope.breadcrumbs = $scope.breadcrumbs.slice(0,2);
+          },
+          "type":  function(index) {
+            $scope.choices.subtype = false;
+            $scope.choices.drink_by_ingredients = false;
+            $scope.choices.ingredients = false;
+            $scope.breadcrumbs = $scope.breadcrumbs.slice(0,3);
+          },
+          "subtype": function(index) {
+            $scope.choices.drink_by_ingredients = false;
+            $scope.choices.ingredients = false;
+            $scope.breadcrumbs.pop();
+          },
+          "ingredient": function(index) {
+          }
+        };
+
+        $scope.breadcrumbs = [{"name": "home", "type": "home"}];
+
+        $scope.showTypes = function(index) {
+          window.history.pushState({"type": "booze"}, null, window.location);
+          $scope.choices.booze = true;
+          $scope.indices.booze = index;
+          $scope.breadcrumbs.push({"name": $scope.drink_tree[index].name,
+                                   "type": "booze"});
+        };
+
+        $scope.showSubtypes = function(index) {
+          window.history.pushState({"type": "type"}, null, window.location);
+          $scope.choices.type = true;
+          $scope.breadcrumbs.push({"name": $scope.drink_tree[$scope.indices.booze].types[index].name,
+                                   "type": "type"});
+          $scope.indices.type = index;
+        }
+
+        $scope.showDrinks = function(index) {
+          window.history.pushState({"type": "subtype"}, null, window.location);
+          $scope.choices.subtype = true;
+          $scope.breadcrumbs.push({"name": $scope.drink_tree[$scope.indices.booze].types[$scope.indices.type].subtypes[index].name,
+                                   "type": "subtype"});
+          $scope.indices.subtype = index;
+        }
+        
+        $scope.showDrinksByIngredient = function(list, index) {
+          window.history.pushState({"type": "ingredient"}, null, window.location);
+          $scope.ingredient_drinks = list[index].drinks;
+          $scope.choices.drink_by_ingredients = true;
+          $scope.breadcrumbs.push({"name": list[index].name, "type": "ingredient"});
+          $scope.indices.ingredient = index;
+        }
+        
+        $scope.showIngredients = function() {
+          $scope.choices.ingredients = true;
+          window.history.pushState({"type": "ingredient"}, null, window.location);
+        }
+        
+        $scope.hideIngredients = function() {
+          $scope.choices.ingredients = false;
+          window.history.back();
+        }
+
+        $scope.drinkIngredients = function(name) {
+          var drink = $scope.drinks[name];
+          var ingredients = [];
+          var props = ["primary", "secondary", "bitter", "sweetener", "fruit", "mixer", "egg"];
+          for (var i = 0; i < props.length; i++) {
+            if (props[i] in drink) {
+              ingredients = ingredients.concat(drink[props[i]]);
+            }
+          }
+		   ingredients.sort();
+          return ingredients;
+        }
+        
+        $scope.onPopState = function(state) {
+          if (state) {
+            if (state.type == 'ingredients') {
+              $scope.choice.ingredients = false;
+            }
+            $scope.crumbs[state.type](); 
+          }
+        }
+
+
+        $scope.drinks = {
+          "Negroni":        {"primary": ["gin"], 
+                             "secondary": ["sweet vermouth", "campari"]},
+          "Corpse Reviver": {"primary": ["gin"],
+                             "secondary": ["kina lillet", "cointreau"],
+                             "fruit": ["lemon"],
+                             "bitter": ["absinthe"]},
+          "The Last Word": {"primary": ["gin"],
+                            "secondary": ["maraschino", "chartreuse"],
+                            "fruit": ["lime"]},
+          "Aviation":       {"primary": ["gin"],
+                             "secondary": ["maraschino", "creme de violette"],
+                             "fruit": ["lemon"]},
+          "Bronx":          {"primary": ["gin"],
+                             "secondary": ["sweet vermouth", "dry vermouth"],
+                             "fruit": ["orange"]},
+          "Gimlet":         {"primary": ["gin"],
+                             "fruit": ["lime"],
+                             "sweetener": ["simple syrup"]},
+          "Improved Gin":   {"primary": ["gin"],
+                             "secondary": ["maraschino"],
+                             "sweetener": ["simple syrup"],
+                             "bitter": ["angostura"]},
+          "Martinez":       {"primary": ["gin"],
+                             "secondary": ["sweet vermouth", "maraschino"],
+                             "bitter": ["angostura"]},
+          "Gin Martini":    {"primary": ["gin"],
+                             "secondary": ["dry vermouth"]},
+          "Gin & Tonic":    {"primary": ["gin"],
+                             "mixer": ["tonic"]},
+          "Tom Collins":    {"primary": ["gin"],
+                             "sweetener": ["simple syrup"],
+                             "fruit": ["lemon"],
+                             "mixer": ["soda"]},
+          "Bramble":        {"primary": ["gin"],
+                             "secondary": ["creme de mure"],
+                             "fruit": ["lemon"],
+                             "sweetener": ["simple syrup"]},
+          "Lemon Drop":     {"primary": ["vodka"],
+                             "fruit": ["lemon"],
+                             "sweetener": ["simple syrup"]},
+          "Cosmopolitan":   {"primary": ["vodka"],
+                             "secondary": ["cointreau"],
+                             "fruit": ["lime", "cranberry"]},
+          "Kamikaze":       {"primary": ["vodka"],
+                             "secondary": ["triple sec"],
+                             "fruit": ["lime"]},
+          "Vodka Martini":  {"primary": ["vodka"],
+                             "secondary": ["dry vermouth"]},
+          "Black Russian":  {"primary": ["vodka"],
+                             "secondary": ["creme de cafe"]},
+          "Greyhound":      {"primary": ["vodka"],
+                             "fruit": ["grapefruit"]},
+          "Moscow Mule":    {"primary": ["vodka"],
+                             "fruit": ["lime"],
+                             "mixer": ["ginger beer"]},
+          "Sidecar":        {"primary": ["cognac"],
+                             "secondary": ["cointreau"],
+                             "fruit": ["lemon"]},
+          "Horse's Neck":   {"primary": ["whiskey"],
+                             "mixer": ["ginger ale"],
+                             "bitter": ["angostura"]},
+          "Rob Roy":        {"primary": ["scotch"],
+                             "secondary": ["sweet vermouth"],
+                             "bitter": ["angostura"]},
+          "Seelbach":       {"primary": ["bourbon"],
+                             "secondary": ["cointreau"],
+                             "mixer": ["champagne"],
+                             "bitter": ["angostura", "peychauds"]},
+          "Venetian Spritz":{"primary": ["prosecco"],
+					    "secondary": ["amaro"],
+                             "soda": ["soda"]},
+          "Pisco Sour":     {"primary": ["pisco capel"],
+                             "fruit": ["lemon"],
+                             "sweetener": ["simple syrup"],
+                             "bitter": ["angostura"],
+                             "egg": ["egg"]},
+          "French 75":      {"primary": ["gin"],
+                             "fruit": ["lemon"],
+                             "sweetener": ["simple syrup"],
+                             "mixer": ["champagne"]},
+          "French 95":      {"primary": ["bourbon"],
+                             "fruit": ["lemon"],
+                             "sweetener": ["simple syrup"],
+                             "mixer": ["champagne"]},
+          "Between the Sheets": {"primary": ["rum", "cognac"],
+                                 "secondary": ["triple sec"],
+                                 "fruit": ["lemon"]},
+          "Beachcomber":    {"primary": ["light rum"],
+                             "secondary": ["triple sec", "maraschino"],
+                             "fruit": ["lime"],
+					    "sweetener": ["simple syrup"]},
+          "Rum Old-Fashioned": {"primary": ["dark rum"],
+                                "sweetener": ["simple syrup"],
+                                "bitter": ["angostura"]},
+          "El Presidente": {"primary": ["rum"],
+                            "secondary": ["dry vermouth", "orange curacao"],
+                            "sweetener": ["grenadine"]},
+          "Hemingway Daiquiri": {"primary": ["rum"],
+                                "secondary": ["maraschino"],
+                                "fruit": ["lime", "grapefruit"],
+						  "sweetener": ["simple syrup"]},
+          "Daiquiri":       {"primary": ["rum"],
+                             "fruit": ["lime"],
+                             "sweetener": ["simple syrup"]},
+          "Mojito":         {"primary": ["rum"],
+                             "fruit": ["lime"],
+                             "sweetener": ["mint"],
+                             "mixer": ["soda"]},
+          "Dark & Stormy":  {"primary": ["black rum"],
+                             "fruit": ["lime"],
+                             "mixer": ["ginger beer"]},
+          "Cuba Libre":     {"primary": ["rum"],
+                             "fruit": ["lime"],
+                             "mixer": ["coke"]},
+          "Mai Tai":        {"primary": ["light rum", "dark rum"],
+                             "secondary": ["orange curacao"],
+                             "fruit": ["lime"],
+                             "sweetener": ["orgeat syrup"]},
+          "Brave Bull":     {"primary": ["tequila"],
+                             "secondary": ["kahlua"]},
+          "Oaxaca Old-Fashioned": {"primary": ["tequila"],
+                                   "sweetener": ["agave"],
+                                   "bitter": ["angostura"]},
+          "Tequila & Tonic":  {"primary": ["tequila"],
+                               "mixer": ["tonic"]},
+          "Margarita":      {"primary": ["tequila"],
+                             "secondary": ["cointreau"],
+                             "fruit": ["lime"]},
+          "Paloma":         {"primary": ["tequila"],
+                             "mixer": ["gradefruit soda"]},
+          "Boulevardier":   {"primary": ["bourbon"],
+                             "secondary": ["campari", "sweet vermouth"]},
+          "Sazerac":        {"primary": ["whiskey"],
+                             "sweetener": ["simple syrup"],
+                             "bitter": ["peychauds", "absinthe"]},
+          "Brooklyn":       {"primary": ["whiskey"],
+                             "secondary": ["dry vermouth", "maraschino"],
+                             "bitter": ["angostura"]},
+          "Toronto":        {"primary": ["whiskey"],
+                             "secondary": ["amaro"],
+                             "sweetener": ["simple syrup"],
+                             "bitter": ["angostura"]},
+          "Old-Fashioned":  {"primary": ["whiskey"],
+                             "sweetener": ["simple syrup"],
+                             "bitter": ["angostura"],
+					    "fruit": ["orange"]},
+          "Manhattan":     {"primary": ["whiskey"],
+                             "secondary": ["sweet vermouth"],
+                             "bitter": ["angostura"]},
+          "Blood & Sand":   {"primary": ["whiskey"],
+                             "secondary": ["sweet vermouth", "maraschino"],
+                             "fruit": ["orange"]},
+          "Kentucky Mule":  {"primary": ["whiskey"],
+                             "fruit": ["lime"],
+                             "mixer": ["ginger beer"]},
+          "Mint Julep":     {"primary": ["whiskey"],
+                             "sweetener": ["mint"]},
+          "Highball":       {"primary": ["whiskey"],
+                             "mixer": ["soda"]},
+          "Whiskey Sour":   {"primary": ["whiskey"],
+                             "fruit": ["lemon"],
+                             "sweetener": ["simple syrup"],
+                             "egg": ["egg"]},
+          "John Collins":   {"primary": ["whiskey"],
+                             "fruit": ["lemon"],
+                             "sweetener": ["simple syrup"],
+                             "mixer": ["soda"]},
+		"Fairweather":	   {"primary": ["tequila"],
+					    "fruit": ["lemon"],
+					    "secondary": ["amaro"],
+					    "bitter": ["cinnamon"]
+					   }
+        } 
+
+        $scope.drink_tree = [{"name": "gin",
+                              "types": [{"name": "boozy", "subtypes": 
+                                         [{"name": "sour",
+                                           "drinks": [{"name": "Bronx", "style": "layered"},
+                                                      {"name": "Gimlet", "style": "simple"}]},
+                                          {"name": "martini",
+                                           "drinks": [{"name": "Improved Gin", "style": "luxardo"},
+                                                      {"name": "Martinez", "style": "perfect"},
+                                                      {"name": "Gin Martini", "style": "original"}]},
+                                          {"name": "complex",
+                                           "drinks": [{"name": "Negroni", "style": "grown up"},
+                                                      {"name": "Corpse Reviver", "style": "harmony"},
+                                                      {"name": "The Last Word", "style": "herbal"},
+                                                      {"name": "Aviation", "style": "violette"}]}
+                                         ]},
+                                        {"name": "refreshing", "subtypes": 
+                                         [{"name": "simple",
+                                           "drinks": [{"name": "Gin & Tonic", "style": "classic"}]},
+                                          {"name": "sour",
+                                           "drinks": [{"name": "Tom Collins", "style": "lemon"},
+                                                      {"name": "Bramble", "style": "blackberry"}]}
+                                         ]}
+                                       ]},
+                              {"name": "vodka",
+                              "types": [{"name": "boozy", "subtypes": 
+                                         [{"name": "sour",
+                                           "drinks": [{"name": "Lemon Drop", "style": "simple & sour"},
+                                                      {"name": "Cosmopolitan", "style": "cranberry"},
+                                                      {"name": "Kamikaze", "style": "aggressive"}]},
+                                          {"name": "simple",
+                                           "drinks": [{"name": "Vodka Martini", "style": "bondian"}]},
+                                          {"name": "sweet",
+                                           "drinks": [{"name": "Black Russian", "style": "siberian"}]}
+                                         ]},
+                                        {"name": "refreshing", "subtypes": 
+                                         [{"name": "sour",
+                                           "drinks": [{"name": "Greyhound", "style": ""}]},
+                                          {"name": "ginger",
+                                           "drinks": [{"name": "Moscow Mule", "style": "russian"}]}
+                                         ]}
+                                       ]},
+                             {"name": "exotic",
+                              "types": [{"name": "boozy", "subtypes": 
+                                         [{"name": "brandy",
+                                           "drinks": [{"name": "Sidecar", "style": "lemon"},
+                                                      {"name": "Horse's Neck", "style": "ginger"}]},
+                                          {"name": "smokey",
+                                           "drinks": [{"name": "Rob Roy", "style": "scottish"}]},
+                                          {"name": "complex",
+                                           "drinks": [{"name": "Seelbach", "style": "glittering"}]}
+                                         ]},
+                                        {"name": "refreshing", "subtypes": 
+                                         [{"name": "sour",
+                                           "drinks": [{"name": "Pisco Sour", "style": "south american"}]},
+                                          {"name": "light",
+                                           "drinks": [{"name": "Venetian Spritz", "style": "bright"}]},
+                                          {"name": "champagne",
+                                           "drinks": [{"name": "French 75", "style": "gin"},
+                                                      {"name": "French 95", "style": "bourbon"}]}
+                                         ]}
+                                       ]},
+                             {"name": "rum",
+                              "types": [{"name": "boozy", "subtypes": 
+                                         [{"name": "complex",
+                                           "drinks": [{"name": "Between the Sheets", "style": "lemon"},
+                                                      {"name": "Beachcomber", "style": "lime"}]},
+                                          {"name": "simple",
+                                           "drinks": [{"name": "Rum Old-Fashioned", "style": "tropical"}]},
+                                          {"name": "complex",
+                                           "drinks": [{"name": "El Presidente", "style": "executive"}]}
+                                         ]},
+                                        {"name": "refreshing", "subtypes": 
+                                         [{"name": "sour",
+                                           "drinks": [{"name": "Hemingway Daiquiri", "style": "professional"},
+                                                      {"name": "Daiquiri", "style": "beginnger"},
+                                                      {"name": "Mojito", "style": "mint"}]},
+                                          {"name": "sweet",
+                                           "drinks": [{"name": "Dark & Stormy", "style": "ginger"},
+                                                      {"name": "Cuba Libre", "style": "coke"},
+                                                      {"name": "Mojito", "style": "mint"}]}
+                                         ]}
+                                       ]},
+                             {"name": "tequila",
+                              "types": [{"name": "boozy", "subtypes": 
+                                         [{"name": "coffee",
+                                           "drinks": [{"name": "Brave Bull", "style": "spicy"}]},
+                                          {"name": "smokey",
+                                           "drinks": [{"name": "Oaxaca Old-Fashioned", "style": "musty"},
+										    {"name": "Fairweather", "style": "warm"}]},
+                                         ]},
+                                        {"name": "refreshing", "subtypes": 
+                                         [{"name": "simple",
+                                           "drinks": [{"name": "Tequila & Tonic", "style": "different"}]},
+                                          {"name": "Sour",
+                                           "drinks": [{"name": "Margarita", "style": "beginner"},
+                                                      {"name": "Paloma", "style": "professional"}]}
+                                         ]}
+                                       ]},
+                             {"name": "whiskey",
+                              "types": [{"name": "boozy", 
+                                         "subtypes": 
+                                         [{"name": "simple",
+                                           "drinks": [{"name": "Old-Fashioned", "style": "classic"}]},
+                                          {"name": "sweet",
+                                           "drinks": [{"name": "Manhattan", "style": "classic"},
+                                                      {"name": "Blood & Sand", "style": "old hollywood"}]},
+                                          {"name": "sour",
+                                           "drinks": [{"name": "Boulevardier", "style": "flawless"},
+                                                      {"name": "Sazerac", "style": "absinthe"},
+                                                      {"name": "Brooklyn", "style": "hipster"},
+                                                      {"name": "Toronto", "style": "polite"}]}
+                                         ]},
+                                        {"name": "refreshing", "subtypes": 
+                                         [{"name": "sweet",
+                                           "drinks": [{"name": "Kentucky Mule", "style": "ginger"},
+                                                      {"name": "Mint Julep", "style": "mint"}]},
+                                          {"name": "simple",
+                                           "drinks": [{"name": "Highball", "style": "dead simple"}]},
+                                          {"name": "sour",
+                                           "drinks": [{"name": "Whiskey Sour", "style": "foam"},
+                                                      {"name": "John Collins", "style": "fizzy"}]}
+                                         ]}
+                                       ]}
+                            ];
+
+        function prepDrinkTree() {
+          for (var a = 0; a < $scope.drink_tree.length; a++) {
+            $scope.drink_tree[a].count = 0;
+            $scope.drink_tree[a].ingredient_map = {};
+            for (var b = 0; b < $scope.drink_tree[a].types.length; b++) {
+              $scope.drink_tree[a].types[b].ingredient_map = {};
+              $scope.drink_tree[a].types[b].count = 0;
+              for (var c = 0; c < $scope.drink_tree[a].types[b].subtypes.length; c++) {
+                $scope.drink_tree[a].types[b].subtypes[c].count = $scope.drink_tree[a].types[b].subtypes[c].drinks.length;
+                $scope.drink_tree[a].types[b].count += $scope.drink_tree[a].types[b].subtypes[c].drinks.length;
+                $scope.drink_tree[a].count += $scope.drink_tree[a].types[b].subtypes[c].drinks.length;
+                for (var d = 0; d < $scope.drink_tree[a].types[b].subtypes[c].drinks.length; d++) {
+                  addDrinkToMap($scope.drink_tree[a].types[b].subtypes[c].drinks[d].name, 
+                                $scope.drink_tree[a].types[b].ingredient_map);
+                  addDrinkToMap($scope.drink_tree[a].types[b].subtypes[c].drinks[d].name, 
+                                $scope.drink_tree[a].ingredient_map);
+                }
+                
+              }
+              distillIngredients($scope.drink_tree[a].types[b]);
+            }
+            distillIngredients($scope.drink_tree[a]);
+          }
+        }
+        prepDrinkTree();
+      
+        function addDrinkToMap(drink, map) {
+          var ingredients = $scope.drinkIngredients(drink);
+          for (var i = 0; i < ingredients.length; i++) {
+            if (ingredients[i] in map) {
+              map[ingredients[i]].add(drink);
+            } else {
+              map[ingredients[i]] = new Set([drink]);
+            }
+          }
+        }
+      
+        function distillIngredients(base) {
+          base.ingredients = [];
+          var i;
+          for (i in base.ingredient_map) {
+            base.ingredients.push({
+              "name": i,
+              "drinks": Array.from(base.ingredient_map[i])
+            });
+          }
+          base.ingredients = base.ingredients.sort(function(a, b) { return a.name < b.name; });
+          delete base.ingredient_map;
+        }
+        
+        window.history.replaceState({"type": "home"}, null, window.location);
+      }).directive("ngPopstate", function($parse, $timeout, $window){
+        return function($scope, $element, $attributes){
+          var fn = $parse($attributes["ngPopstate"]);
+          $window.addEventListener("popstate", function(event){
+            event.stopPropagation();
+            event.preventDefault();
+            $timeout(function() {
+              fn($scope, {
+                $state : event.state,
+                $event : event
+              });
+            });
+          });
+        };
+      });
+    </script>    
+  </body>
+</html>

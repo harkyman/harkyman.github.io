@@ -234,9 +234,9 @@
         <div ng-repeat="drink in drink_tree[indices.booze].types[indices.type].subtypes[indices.subtype].drinks" class="drink-list">
           <div class="first-true" ng-if="$first"></div>
           <div class="drink-style">{{ drink.style }}</div>
-          <div class="drink-name">{{ drink.name }}<span class="drink-ratio">{{ drink.ratio }}</span></div>
+          <div class="drink-name">{{ drink.name }}<span class="drink-ratio">{{ drinkRatio(drink.name); }}</span></div>
           <div class="drink-ingredients"><div ng-repeat="item in drinkIngredients(drink.name);" class="ingredient">{{ item }}</div></div>
-		  <div class="drink-garnish">{{ drink.garnish }}</div>
+		  <div class="drink-garnish">{{ drinkGarnish(drink.name); }}</div>
           <div class="last-true" ng-if="$last"></div>
         </div>
       </div>
@@ -353,6 +353,23 @@
           $scope.choices.ingredients = false;
           window.history.back();
         }
+
+		$scope.drinkRatio = function(name) {
+			if (name in $scope.drinks) {
+				if (ratio in $scope.drinks[name]) {
+					return $scope.drinks[name].ratio;
+				}
+			}
+		}
+
+		$scope.drinkGarnish = function(name) {
+			if (name in $scope.drinks) {
+				if (garnish in $scope.drinks[name]) {
+					return $scope.drinks[name].garnish;
+				}
+			}
+		}
+
 
         $scope.drinkIngredients = function(name) {
           var drink = $scope.drinks[name];

@@ -33,7 +33,7 @@
       
       .breadcrumb {
         text-transform: capitalize;
-        font-size: 3.5vh;
+        font-size: 3vh;
       }
       
       .subtype {
@@ -123,6 +123,14 @@
         margin-left: 5.5vmin;
         opacity: 0.8;
       }
+
+	  .drink-ratio {
+        font-weight: bold;
+        font-family: "Oswald", sans-serif;
+        font-size: 3vmin;
+        margin-left: 1vmin;
+        opacity: 0.6;
+      }
       
       .drink-ingredients {
         margin-left: 10vmin;
@@ -130,6 +138,17 @@
         font-weight: lighter;
         opacity: 0.7;
       }
+
+	  .drink-garnish {
+        margin-left: 10vmin;
+        font-family: "Oswald", sans-serif;
+        font-weight: lighter;
+        opacity: 0.4;
+      }
+
+		.drink-garnish:before {
+		  content: "* ";
+		}
       
       .title {
         position: fixed;
@@ -180,7 +199,7 @@
       }
       
       .first-true {
-        margin-top: 40vh; 
+        margin-top: 0vh; 
       }
       
       .last-true {
@@ -215,8 +234,9 @@
         <div ng-repeat="drink in drink_tree[indices.booze].types[indices.type].subtypes[indices.subtype].drinks" class="drink-list">
           <div class="first-true" ng-if="$first"></div>
           <div class="drink-style">{{ drink.style }}</div>
-          <div class="drink-name">{{ drink.name }}</div>
+          <div class="drink-name">{{ drink.name }}<span class="drink-ratio">{{ drink.ratio }}</span></div>
           <div class="drink-ingredients"><div ng-repeat="item in drinkIngredients(drink.name);" class="ingredient">{{ item }}</div></div>
+		  <div class="drink-garnish">{{ drink.garnish }}</div>
           <div class="last-true" ng-if="$last"></div>
         </div>
       </div>
@@ -359,17 +379,22 @@
 
         $scope.drinks = {
           "Negroni":        {"primary": ["gin"], 
-                             "secondary": ["sweet vermouth", "campari"]},
-          "Corpse Reviver": {"primary": ["gin"],
-                             "secondary": ["kina lillet", "cointreau"],
+                             "secondary": ["sweet vermouth", "campari"],
+							"ratio": "1:1:1",
+							"garnish": "orange peel"},
+          "Corpse Reviver 2": {"primary": ["gin"],
+                             "secondary": ["lillet blanc", "cointreau"],
                              "fruit": ["lemon"],
-                             "bitter": ["absinthe"]},
+                             "bitter": ["absinthe"],
+							  "ratio": "1:1:1:1:dash"},
           "The Last Word": {"primary": ["gin"],
                             "secondary": ["maraschino", "chartreuse"],
-                            "fruit": ["lime"]},
+                            "fruit": ["lime"],
+						   "ratio": "1:1:1:1"},
           "Aviation":       {"primary": ["gin"],
                              "secondary": ["maraschino", "creme de violette"],
-                             "fruit": ["lemon"]},
+                             "fruit": ["lemon"],
+							"ratio": "4:1:1:2"},
           "Bronx":          {"primary": ["gin"],
                              "secondary": ["sweet vermouth", "dry vermouth"],
                              "fruit": ["orange"]},
@@ -543,16 +568,16 @@
                                                       {"name": "Gin Martini", "style": "original"}]},
                                           {"name": "complex",
                                            "drinks": [{"name": "Negroni", "style": "grown up"},
-                                                      {"name": "Corpse Reviver", "style": "harmony"},
+                                                      {"name": "Corpse Reviver 2", "style": "harmony"},
                                                       {"name": "The Last Word", "style": "herbal"},
                                                       {"name": "Aviation", "style": "violette"}]}
                                          ]},
                                         {"name": "refreshing", "subtypes": 
                                          [{"name": "simple",
-                                           "drinks": [{"name": "Gin & Tonic", "style": "classic"}]},
+                                           "drinks": [{"name": "Gin & Tonic", "style": "classic"},
+													 {"name": "Tom Collins", "style": "lemon"}]},
                                           {"name": "sour",
-                                           "drinks": [{"name": "Tom Collins", "style": "lemon"},
-                                                      {"name": "Bramble", "style": "blackberry"}]}
+                                           "drinks": [{"name": "Bramble", "style": "blackberry"}]}
                                          ]}
                                        ]},
                               {"name": "vodka",

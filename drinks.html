@@ -354,10 +354,11 @@
           window.history.back();
         }
 
-		$scope.drinkRatio = function(name) {
+		$scope.drinkRatio = function(name) {\
+			console.log($scope.drinks[name]
 			if (name in $scope.drinks) {
 				if ("ratio" in $scope.drinks[name]) {
-					return $scope.drinks[name].ratio;
+					return $scope.drinks[name]["ratio"];
 				}
 			}
 		}
@@ -365,7 +366,7 @@
 		$scope.drinkGarnish = function(name) {
 			if (name in $scope.drinks) {
 				if ("garnish" in $scope.drinks[name]) {
-					return $scope.drinks[name].garnish;
+					return $scope.drinks[name]["garnish"];
 				}
 			}
 		}

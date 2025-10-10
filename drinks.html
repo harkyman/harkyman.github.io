@@ -356,7 +356,7 @@
 
 		$scope.drinkRatio = function(name) {
 			if (name in $scope.drinks) {
-				if (ratio in $scope.drinks[name]) {
+				if ("ratio" in $scope.drinks[name]) {
 					return $scope.drinks[name].ratio;
 				}
 			}
@@ -364,7 +364,7 @@
 
 		$scope.drinkGarnish = function(name) {
 			if (name in $scope.drinks) {
-				if (garnish in $scope.drinks[name]) {
+				if ("garnish" in $scope.drinks[name]) {
 					return $scope.drinks[name].garnish;
 				}
 			}

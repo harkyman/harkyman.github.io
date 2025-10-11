@@ -236,15 +236,16 @@
           <div class="drink-style">{{ drink.style }}</div>
           <div class="drink-name">{{ drink.name }}<span class="drink-ratio">{{ drinkRatio(drink.name); }}</span></div>
           <div class="drink-ingredients"><div ng-repeat="item in drinkIngredients(drink.name);" class="ingredient">{{ item }}</div></div>
-		  <div class="drink-garnish">{{ drinkGarnish(drink.name); }}</div>
+		  <div class="drink-garnish" ng-if="(drinkGarnish(drink.name) != undefined) ? TRUE : FALSE;">{{ drinkGarnish(drink.name); }}</div>
           <div class="last-true" ng-if="$last"></div>
         </div>
       </div>
       <div class='bar ai' ng-if="choices.drink_by_ingredients">
         <div ng-repeat="drink in ingredient_drinks" class="drink-list-ingredients">
           <div class="first-true" ng-if="$first"></div>
-          <div class="drink-name">{{ drink }}</div>
+          <div class="drink-name">{{ drink }}<span class="drink-ratio">{{ drinkRatio(drink.name); }}</span></div>
           <div class="drink-ingredients"><div ng-repeat="item in drinkIngredients(drink);" class="ingredient">{{ item }}</div></div>
+		  <div class="drink-garnish" ng-if="(drinkGarnish(drink.name) != undefined) ? TRUE : FALSE;">{{ drinkGarnish(drink.name); }}</div>
           <div class="last-true" ng-if="$last"></div>
         </div>
       </div>
@@ -355,7 +356,6 @@
         }
 
 		$scope.drinkRatio = function(name) {
-			console.log($scope.drinks[name]);
 			if (name in $scope.drinks) {
 				if ("ratio" in $scope.drinks[name]) {
 					return $scope.drinks[name]["ratio"];
